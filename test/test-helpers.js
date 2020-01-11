@@ -1,13 +1,12 @@
 const bcrypte = require('bcryptjs');
 
 function cleanTables(db) {
-    db.raw(
+    return db.raw(
         `TRUNCATE
             solitude_users,
             solitude_date_categories,
             solitude_journals
-        RESTART IDENTITY CASCADE
-        `
+        RESTART IDENTITY CASCADE`
     );
 }
 
