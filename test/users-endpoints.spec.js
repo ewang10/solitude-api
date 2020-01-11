@@ -39,7 +39,7 @@ describe('Users Endpoint', () => {
                         .post('/api/users')
                         .send(newUser)
                         .expect(400, {
-                            error: `Missing ${field} in request body`
+                            error: `Missing '${field}' in request body`
                         });
                 });
             });

@@ -11,9 +11,11 @@ usersRouter
 
         for (const [key, value] of Object.entries(newUser)) {
             if (value === null) {
-                req.statusCode(400).json({
-                    error: `Missing ${key} in request body`
+                req.status(400).json({
+                    error: `Missing '${key}' in request body`
                 });
             }
         }
     })
+
+module.exports = usersRouter;

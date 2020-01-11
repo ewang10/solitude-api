@@ -91,13 +91,12 @@ function makeJournalsArray() {
 
 function seedUsers(db, users) {
     const prepUsers = users.map(user =>
-            {
-                return {
-                    ...user,
-                    password: bcrypte.hashSync(user.password, 1)
-                }
+            ({
+                ...user,
+                password: bcrypte.hashSync(user.password, 1)
+            })
 
-            }
+            
         );
     return db
             .insert(prepUsers)
