@@ -61,7 +61,7 @@ function makeJournalsArray() {
             content: 'content 1',
             categoryid: 1,
             userid: 1
-        }, 
+        },
         {
             id: 2,
             name: "Journal 2",
@@ -89,23 +89,87 @@ function makeJournalsArray() {
     ];
 }
 
-function seedUsers(db, users) {
-    const prepUsers = users.map(user =>
-            ({
-                ...user,
-                password: bcrypte.hashSync(user.password, 1)
-            })
 
-            
-        );
-    return db
-            .insert(prepUsers)
-            .into('solitude_users');
+function makeMaliciousDateCategory() {
+    const maliciousDateCategory = {
+        id: 911,
+        name: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        userid: 1
+    };
+    const expectedDateCategory = {
+        ...maliciousDateCategory,
+        name: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;'
+    };
+
+    return { maliciousDateCategory, expectedDateCategory };
 }
 
-function makeAuthHeader(user, secret=process.env.JWT_SECRET) {
+function makeMaliciousJournal() {
+    const maliciousJournal = {
+        id: 911,
+        name: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        duration: 15,
+        date: new Date(),
+        goal: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        beforemood: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+        aftermood: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+        content: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+        categoryid: 1,
+        userid: 1
+    };
+
+    const expectedJournal = {
+        ...maliciousJournal,
+        name: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        goal: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        beforemood: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`,
+        aftermood: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`,
+        content: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`
+    };
+
+    return { maliciousJournal, expectedJournal };
+}
+
+function expectedCategories(user_id, categories) {
+    const userCategories = categories.filter(category =>
+            category.userid === user_id
+        );
+    return userCategories;
+}
+
+function expectedCategory(categories, category_id) {
+    return categories.find(category => 
+            category.id === category_id
+        );
+}
+
+function seedUsers(db, users) {
+    const prepUsers = users.map(user =>
+        ({
+            ...user,
+            password: bcrypte.hashSync(user.password, 1)
+        })
+    );
+    return db
+        .insert(prepUsers)
+        .into('solitude_users');
+}
+
+function seedDateCategories(db, categories) {
+    return db
+        .insert(categories)
+        .into('solitude_date_categories');
+}
+
+function seedJournals(db, journals) {
+    return db
+        .insert(journals)
+        .into('solitude_djournals');
+}
+
+function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
-        {user_id: user.id},
+        { user_id: user.id },
         secret,
         {
             subject: user.user_name,
@@ -121,6 +185,12 @@ module.exports = {
     makeUsersArray,
     makeDateCategoriesArray,
     makeJournalsArray,
+    makeMaliciousDateCategory,
+    makeMaliciousJournal,
     seedUsers,
-    makeAuthHeader
+    seedDateCategories,
+    seedJournals,
+    makeAuthHeader,
+    expectedCategories,
+    expectedCategory
 }
