@@ -2,7 +2,7 @@ const app = require('../src/app');
 const knex = require('knex');
 const helpers = require('./test-helpers');
 
-describe.only('Date Categories Endpoints', () => {
+describe('Date Categories Endpoints', () => {
     let db;
     before('create knex instance', () => {
         db = knex({
@@ -144,6 +144,17 @@ describe.only('Date Categories Endpoints', () => {
                         .set('Authorization', helpers.makeAuthHeader(testUser))
                         .expect(res.body)    
                 );
+        });
+        it('removes XSS attack content from response', () => {
+            const { maliciousDateCategory, expectedDateCategory } = helpers.makeMaliciousDateCategory();
+            return supertest(app)
+                .post('/api/date_categories')
+                .send(maliciousDateCategory)
+                .set('Authorization', helpers.makeAuthHeader(testUser))
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.name).to.eql(expectedDateCategory.name);
+                });
         });
     });
 });

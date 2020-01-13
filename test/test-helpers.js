@@ -143,6 +143,18 @@ function expectedCategory(categories, category_id) {
         );
 }
 
+function expectedJournals(user_id, journals) {
+    return journals.filter(journal => journal.userid === user_id);
+}
+
+function expectedJournal(journals, journal_id) {
+    return journals.find(journal => journal.id === journal_id);
+}
+
+function expectedJournalsAfterDelete(journals, journal_id) {
+    return journals.filter(journal => journal.id !== journal_id);
+}
+
 function seedUsers(db, users) {
     const prepUsers = users.map(user =>
         ({
@@ -164,7 +176,7 @@ function seedDateCategories(db, categories) {
 function seedJournals(db, journals) {
     return db
         .insert(journals)
-        .into('solitude_djournals');
+        .into('solitude_journals');
 }
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
@@ -192,5 +204,8 @@ module.exports = {
     seedJournals,
     makeAuthHeader,
     expectedCategories,
-    expectedCategory
+    expectedCategory,
+    expectedJournals,
+    expectedJournal,
+    expectedJournalsAfterDelete
 }

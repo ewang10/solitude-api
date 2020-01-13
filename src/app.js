@@ -8,6 +8,7 @@ const app = express();
 const usersRouter = require('./users/users-router');
 const authRouter = require('./auth/auth-router');
 const dateCategoriesRouter = require('./date_categories/date_categories-router');
+const journalsRouter = require('./journals/journals-router');
 
 const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
@@ -20,6 +21,7 @@ app.use(cors());
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/date_categories', dateCategoriesRouter);
+app.use('/api/journals', journalsRouter);
 
 app.use(function errorHandler(error, req, res, next) {
     let response;
