@@ -43,7 +43,12 @@ const JournalsService = {
     deleteJournal(db, journal_id) {
         return db('solitude_journals')
             .where('id', journal_id)
-            .delete();
+            .del();
+    },
+    updateJournal(db, journal_id, updatedJournal) {
+        return db('solitude_journals')
+            .where('id', journal_id)
+            .update(updatedJournal);
     }
 }
 

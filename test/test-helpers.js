@@ -151,8 +151,9 @@ function expectedJournal(journals, journal_id) {
     return journals.find(journal => journal.id === journal_id);
 }
 
-function expectedJournalsAfterDelete(journals, journal_id) {
-    return journals.filter(journal => journal.id !== journal_id);
+function expectedJournalsAfterDelete(user_id, journals, journal_id) {
+    const userJournals = expectedJournals(user_id, journals);
+    return userJournals.filter(journal => journal.id !== journal_id);
 }
 
 function seedUsers(db, users) {

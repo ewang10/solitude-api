@@ -212,13 +212,15 @@ describe.only('Journal Endpoints', () => {
                 helpers.seedJournals(db, testJournals)
             );
             it('responds with 204 and removes the journal', () => {
-                const journalToDelete = 1;
+                const idToDelete = 1;
                 const expectedJournals = helpers.expectedJournalsAfterDelete(
+                    testUser.id,
                     testJournals,
-                    journalToDelete
+                    idToDelete
                 );
+
                 return supertest(app)
-                    .delete(`/api/journals/${journalToDelete}`)
+                    .delete(`/api/journals/${idToDelete}`)
                     .set('Authorization', helpers.makeAuthHeader(testUser))
                     .expect(204)
                     .then(() =>
@@ -226,6 +228,86 @@ describe.only('Journal Endpoints', () => {
                             .get('/api/journals')
                             .set('Authorization', helpers.makeAuthHeader(testUser))
                             .expect(expectedJournals)
+                    );
+            });
+        });
+    });
+    describe('PATCH /api/journals/:journal_id', () => {
+        context('Given there are no journals in db', () => {
+            it('responds with 404', () => {
+                const idTOUpdate = 1234;
+                return supertest(app)
+                    .patch(`/api/journals/${idTOUpdate}`)
+                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                    .expect(404, {
+                        error: { message: 'Journal not found' }
+                    });
+            });
+        });
+        context('Given there are journals in db', () => {
+            beforeEach('insert journals', () =>
+                helpers.seedJournals(db, testJournals)
+            );
+            it('responds with 400 when no require field supplied', () => {
+                const idTOUpdate = 2;
+                return supertest(app)
+                    .patch(`/api/journals/${idTOUpdate}`)
+                    .send({
+                        invalidField: "invalid field"
+                    })
+                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                    .expect(400, {
+                        error: { message: `Request body must contain either 'name', 'duration', 'goal', 'beforemood', 'aftermood', 'content', or 'categoryid'` }
+                    });
+            });
+            it('responds with 204 and updates journal', () => {
+                const idTOUpdate = 1;
+                const updatedJournal = {
+                    name: 'updated name',
+                    goal: 'updated goal',
+                    duration: 15,
+                    beforemood: 'updated before mood',
+                    aftermood: 'updated after mood',
+                    content: 'updated content',
+                    categoryid: 1
+                };
+                const journalToUpdate = helpers.expectedJournal(testJournals, idTOUpdate);
+                const expectedJournal = {
+                    ...journalToUpdate,
+                    ...updatedJournal
+                };
+                return supertest(app)
+                    .patch(`/api/journals/${idTOUpdate}`)
+                    .send(updatedJournal)
+                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                    .expect(204)
+                    .then(() =>
+                        supertest(app)
+                            .get(`/api/journals/${idTOUpdate}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(expectedJournal)
+                    );
+            });
+            it('responds with 204 and updates the journal with partial update', () => {
+                const idTOUpdate = 1;
+                const updatedJournal = {
+                    content: 'updated content'
+                };
+                const journalToUpdate = helpers.expectedJournal(testJournals, idTOUpdate);
+                const expectedJournal = {
+                    ...journalToUpdate,
+                    ...updatedJournal
+                };
+                return supertest(app)
+                    .patch(`/api/journals/${idTOUpdate}`)
+                    .send(updatedJournal)
+                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                    .expect(204)
+                    .then(() =>
+                        supertest(app)
+                            .get(`/api/journals/${idTOUpdate}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(expectedJournal)
                     );
             });
         });

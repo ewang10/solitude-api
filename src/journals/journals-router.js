@@ -64,6 +64,25 @@ journalsRouter
             })
             .catch(next);
     })
+    .patch(jsonParser, (req, res, next) => {
+        const {name, duration, goal, beforemood, aftermood, content, categoryid} = req.body;
+        const updatedJournal = {name, duration, goal, beforemood, aftermood, content, categoryid};
+        const numberOfValues = Object.values(updatedJournal).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {message: `Request body must contain either 'name', 'duration', 'goal', 'beforemood', 'aftermood', 'content', or 'categoryid'`}
+            });
+        }
+        JournalsService.updateJournal(
+            req.app.get('db'),
+            req.params.journal_id,
+            updatedJournal
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    })
 
 
 async function checkJournalExist(req, res, next) {
