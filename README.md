@@ -1,4 +1,4 @@
-# ReciPro API
+# Solitude API
 
 * **URL**
 https://stark-fortress-32066.herokuapp.com/api/users
